@@ -1,28 +1,42 @@
 package cs355.model.drawing;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 
 /**
  * This is the base class for all of your shapes.
  * Make sure they all extend this class.
  */
 public abstract class Shape {
-
-	public static enum SHAPE_TYPE {
-		none, circle, ellipse, line, rectangle, square, triangle
-	};
 	
+	public enum SHAPE_TYPE { 
+		circle, ellipse, line, rectangle, square, triangle
+	}
+	
+	protected SHAPE_TYPE type;
+	protected boolean isSelected = false;
+	
+	private int index;
+
 	// The color of this shape.
 	protected Color color;
-	protected SHAPE_TYPE shapeType = SHAPE_TYPE.none;
-	protected int index;
+
+	// The center of this shape.
+	protected Point2D.Double center;
+
+	// The rotation of this shape.
+	protected double rotation;
 
 	/**
-	 * Basic constructor that sets the field.
-	 * @param color the color for this new shape.
+	 * Basic constructor that sets fields.
+	 * It initializes rotation to 0.
+	 * @param color the color for the new shape.
+	 * @param center the center point of the new shape.
 	 */
-	public Shape(Color color) {
+	public Shape(Color color, Point2D.Double center) {
 		this.color = color;
+		this.center = center;
+		rotation = 0.0;
 	}
 
 	/**
@@ -40,14 +54,50 @@ public abstract class Shape {
 	public void setColor(Color color) {
 		this.color = color;
 	}
-	
+
 	/**
-	 * Getter for the shape type (ie circle, square, triangle, etc.)
-	 * @return the type of this shape
+	 * Getter for this shape's center.
+	 * @return this shape's center as a Java point.
 	 */
-	public SHAPE_TYPE getShapeType() {
-		return shapeType;
+	public Point2D.Double getCenter() {
+		return center;
 	}
+
+	/**
+	 * Setter for this shape's center.
+	 * @param center the new center as a Java point.
+	 */
+	public void setCenter(Point2D.Double center) {
+		this.center = center;
+	}
+
+	/**
+	 * Getter for this shape's rotation.
+	 * @return the rotation as a double.
+	 */
+	public double getRotation() {
+		return rotation;
+	}
+
+	/**
+	 * Setter for this shape's rotation.
+	 * @param rotation the new rotation.
+	 */
+	public void setRotation(double rotation) {
+		this.rotation = rotation;
+	}
+
+	/**
+	 * Used to test for whether the user clicked inside a shape or not.
+	 * @param pt = the point to test whether it's in the shape or not.
+	 * @param tolerance = the tolerance for testing. Mostly used for lines.
+	 * @return true if pt is in the shape, false otherwise.
+	 */
+	public abstract boolean pointInShape(Point2D.Double pt, double tolerance);
+	
+	public abstract void resetShape(Point2D.Double start, Point2D.Double end);
+	
+	public SHAPE_TYPE getShapeType() { return type; }
 	
 	public int getIndex() {
 		return index;
@@ -56,4 +106,5 @@ public abstract class Shape {
 	public void setIndex(int index) {
 		this.index = index;
 	}
+	
 }

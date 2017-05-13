@@ -2,15 +2,13 @@ package cs355.model.drawing;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
 
 /**
  * Add your ellipse code here. You can add fields, but you cannot
  * change the ones that already exist. This includes the names!
  */
 public class Ellipse extends Shape {
-
-	// The center of this shape.
-	private Point2D.Double center;
 
 	// The width of this shape.
 	private double width;
@@ -28,29 +26,11 @@ public class Ellipse extends Shape {
 	public Ellipse(Color color, Point2D.Double center, double width, double height) {
 
 		// Initialize the superclass.
-		super(color);
-
+		super(color, center);
+		this.type = Shape.SHAPE_TYPE.ellipse;
 		// Set fields.
-		this.center = center;
 		this.width = width;
 		this.height = height;
-		this.shapeType = Shape.SHAPE_TYPE.ellipse;
-	}
-
-	/**
-	 * Getter for this shape's center.
-	 * @return this shape's center as a Java point.
-	 */
-	public Point2D.Double getCenter() {
-		return center;
-	}
-
-	/**
-	 * Setter for this shape's center.
-	 * @param center the new center as a Java point.
-	 */
-	public void setCenter(Point2D.Double center) {
-		this.center = center;
 	}
 
 	/**
@@ -84,4 +64,47 @@ public class Ellipse extends Shape {
 	public void setHeight(double height) {
 		this.height = height;
 	}
+
+	/**
+	 * Add your code to do an intersection test
+	 * here. You shouldn't need the tolerance.
+	 * @param pt = the point to test against.
+	 * @param tolerance = the allowable tolerance.
+	 * @return true if pt is in the shape,
+	 *		   false otherwise.
+	 */
+	@Override
+	public boolean pointInShape(Point2D.Double pt, double tolerance) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public void resetShape(Point2D.Double start, Double end) {
+		if (end == null) {
+			throw new IllegalArgumentException("the end point is null!");
+		}
+		double width = 0, height = 0;
+		width = start.getX() - end.getX();
+		height = start.getY() - end.getY();
+		if (width < 0) width *= -1;
+		if (height < 0) height *= -1;
+		double x = 0, y = 0;
+//		the x coordinate for the center is the leftmost x coordinate plus the width / 2
+		if (start.getX() < end.getX()) {
+			x = start.getX() + (width/2);
+		}else {
+			x = start.getX() - (width/2);
+		}
+//		the y coordinate for the center is the higher point plus the height / 2
+		if (start.getY() < end.getY()) {
+			y = start.getY() + (height/2);
+		}else {
+			y = start.getY() - (height/2);
+		}
+		Point2D.Double point = new Point2D.Double(x, y);
+		this.setCenter(point);
+		this.setHeight(height);
+		this.setWidth(width);
+	}
+
 }

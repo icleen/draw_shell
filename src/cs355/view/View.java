@@ -1,7 +1,6 @@
 package cs355.view;
 
 import java.awt.Graphics2D;
-import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Observable;
 
@@ -31,7 +30,6 @@ public class View implements ViewRefresher {
 	public void refreshView(Graphics2D g2d) {
 		List<Shape> shapes = Model.SINGLETON.getShapes();
 		Shape.SHAPE_TYPE type = null;
-		Point2D.Double first, second;
 		for (Shape s : shapes) {
 			type = s.getShapeType();
 			int[] args = null;
@@ -48,10 +46,8 @@ public class View implements ViewRefresher {
 				break;
 			case line:
 				g2d.setColor(s.getColor());
-				first = ((Line) s).getStart();
-				second = ((Line) s).getEnd();
-				g2d.drawLine((int) first.getX(), (int) first.getY(), 
-						(int) second.getX(), (int) second.getY());
+				args = ShapeSizer.inst().getLine((Line) s);
+				g2d.drawLine(args[0], args[1], args[2], args[3]);
 				break;
 			case rectangle:
 				g2d.setColor(s.getColor());
@@ -67,7 +63,7 @@ public class View implements ViewRefresher {
 				g2d.setColor(s.getColor());
 				int[] xPoints = ShapeSizer.inst().getTriangleX((Triangle) s);
 				int[] yPoints = ShapeSizer.inst().getTriangleY((Triangle) s);
-				g2d.fillPolygon(xPoints, yPoints, Model.TRIANGLE_POINTS);
+				g2d.fillPolygon(xPoints, yPoints, Model.TOTAL_TRIANGLE_POINTS);
 				break;
 			default:
 				break;

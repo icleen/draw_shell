@@ -34,8 +34,12 @@ public class Controller implements CS355Controller {
 	
 	private static Gson gson = new Gson();
 	
+	private static final int INIT_SIZE = 0;
+	
+	private Shape selected = null;
+	
 	private enum STATES {
-			none, circle, ellipse, line, rectangle, square, triangle
+			circle, ellipse, line, rectangle, square, triangle, select, zoomIn, zoomOut
 	};
 	private STATES currentState;
 	private Color currentColor;
@@ -46,7 +50,7 @@ public class Controller implements CS355Controller {
 	private Point2D.Double start;
 	
 	public Controller() {
-		currentState = STATES.none;
+		currentState = STATES.select;
 		currentColor = Color.WHITE;
 //		GUIFunctions.changeSelectedColor(currentColor);
 	}
@@ -57,11 +61,13 @@ public class Controller implements CS355Controller {
 			Point2D.Double p = new Point2D.Double();
 			p.setLocation(arg0.getX(), arg0.getY());
 			trianglePoints.add(p);
-			if (trianglePoints.size() == Model.TRIANGLE_POINTS) {
-				Shape triangle = new Triangle(currentColor, trianglePoints.get(0), trianglePoints.get(1), trianglePoints.get(2));
+			if (trianglePoints.size() == Model.TOTAL_TRIANGLE_POINTS) {
+				Triangle triangle = ShapeSizer.inst().setTriangle(currentColor, trianglePoints);
 				Model.SINGLETON.addShape(triangle);
 				trianglePoints.clear();
 			}
+		}else if (currentState == STATES.select) {
+			
 		}
 	}
 
@@ -79,19 +85,22 @@ public class Controller implements CS355Controller {
 		start.setLocation(arg0.getX(), arg0.getY());
 		switch (currentState) {
 		case circle:
-			currentShape = new Circle(currentColor, start, 0);
+			currentShape = new Circle(currentColor, start, INIT_SIZE);
 			break;
 		case ellipse:
-			currentShape = new Ellipse(currentColor, start, 0, 0);
+			currentShape = new Ellipse(currentColor, start, INIT_SIZE, INIT_SIZE);
 			break;
 		case line:
 			currentShape = new Line(currentColor, start, start);
 			break;
 		case rectangle:
-			currentShape = new Rectangle(currentColor, start, 0, 0);
+			currentShape = new Rectangle(currentColor, start, INIT_SIZE, INIT_SIZE);
 			break;
 		case square:
-			currentShape = new Square(currentColor, start, 0);
+			currentShape = new Square(currentColor, start, INIT_SIZE);
+			break;
+		case select:
+			selected = Model.SINGLETON.selectShape(start);
 			break;
 		default:
 			break;
@@ -112,24 +121,9 @@ public class Controller implements CS355Controller {
 	public void mouseDragged(MouseEvent arg0) {
 		Point2D.Double point = new Point2D.Double();
 		point.setLocation(arg0.getX(), arg0.getY());
-		switch (currentState) {
-		case circle:
-			ShapeSizer.inst().setCircle((Circle) currentShape, start, point);
-			break;
-		case ellipse:
-			ShapeSizer.inst().setEllipse((Ellipse) currentShape, start, point);
-			break;
-		case line:
-			((Line) currentShape).setEnd(point);
-			break;
-		case rectangle:
-			ShapeSizer.inst().setRectangle((Rectangle) currentShape, start, point);
-			break;
-		case square:
-			ShapeSizer.inst().setSquare((Square) currentShape, start, point);
-			break;
-		default:
-			break;
+		if (currentState != STATES.select && currentState != STATES.zoomIn 
+				&& currentState != STATES.zoomOut) {
+			currentShape.resetShape(start, point);
 		}
 		if (currentShape != null) {
 			Model.SINGLETON.deleteShape(currentIndex);
@@ -180,17 +174,17 @@ public class Controller implements CS355Controller {
 
 	@Override
 	public void selectButtonHit() {
-		currentState = STATES.none;
+		currentState = STATES.select;
 	}
 
 	@Override
 	public void zoomInButtonHit() {
-		currentState = STATES.none;
+		currentState = STATES.zoomIn;
 	}
 
 	@Override
 	public void zoomOutButtonHit() {
-		currentState = STATES.none;
+		currentState = STATES.zoomOut;
 	}
 
 	@Override
@@ -245,18 +239,11 @@ public class Controller implements CS355Controller {
 	public void saveDrawing(File file) {
 		SaveStructure save = new SaveStructure();
 		save.fromModel();
-		Writer writer = null;
 		try {
-			writer = new BufferedWriter( new FileWriter( file ) );
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		gson.toJson(save, writer);
-		try {
+			Writer writer = new BufferedWriter( new FileWriter( file ) );
+			gson.toJson(save, writer);
 			writer.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -266,16 +253,12 @@ public class Controller implements CS355Controller {
 		Reader reader = null;
 		try {
 			reader = new BufferedReader( new FileReader( file ) );
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		SaveStructure save = (SaveStructure) gson.fromJson(reader, SaveStructure.class);
-		save.toModel();
-		try {
+			SaveStructure save = (SaveStructure) gson.fromJson(reader, SaveStructure.class);
+			save.toModel();
 			reader.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

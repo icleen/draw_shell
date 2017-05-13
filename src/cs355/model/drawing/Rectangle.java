@@ -2,15 +2,13 @@ package cs355.model.drawing;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
 
 /**
  * Add your rectangle code here. You can add fields, but you cannot
  * change the ones that already exist. This includes the names!
  */
 public class Rectangle extends Shape {
-
-	// The upper left corner of this shape.
-	private Point2D.Double upperLeft;
 
 	// The width of this shape.
 	private double width;
@@ -21,36 +19,18 @@ public class Rectangle extends Shape {
 	/**
 	 * Basic constructor that sets all fields.
 	 * @param color the color for the new shape.
-	 * @param upperLeft the upper left corner of the new shape.
+	 * @param center the center of the new shape.
 	 * @param width the width of the new shape.
 	 * @param height the height of the new shape.
 	 */
-	public Rectangle(Color color, Point2D.Double upperLeft, double width, double height) {
+	public Rectangle(Color color, Point2D.Double center, double width, double height) {
 
 		// Initialize the superclass.
-		super(color);
-
+		super(color, center);
+		this.type = Shape.SHAPE_TYPE.rectangle;
 		// Set fields.
-		this.upperLeft = upperLeft;
 		this.width = width;
 		this.height = height;
-		this.shapeType = Shape.SHAPE_TYPE.rectangle;
-	}
-
-	/**
-	 * Getter for this Rectangle's upper left corner.
-	 * @return the upper left corner as a Java point.
-	 */
-	public Point2D.Double getUpperLeft() {
-		return upperLeft;
-	}
-
-	/**
-	 * Setter for this Rectangle's upper left corner.
-	 * @param upperLeft the new upper left corner.
-	 */
-	public void setUpperLeft(Point2D.Double upperLeft) {
-		this.upperLeft = upperLeft;
 	}
 
 	/**
@@ -84,4 +64,45 @@ public class Rectangle extends Shape {
 	public void setHeight(double height) {
 		this.height = height;
 	}
+
+	/**
+	 * Add your code to do an intersection test
+	 * here. You shouldn't need the tolerance.
+	 * @param pt = the point to test against.
+	 * @param tolerance = the allowable tolerance.
+	 * @return true if pt is in the shape,
+	 *		   false otherwise.
+	 */
+	@Override
+	public boolean pointInShape(Point2D.Double pt, double tolerance) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public void resetShape(Point2D.Double start, Double end) {
+		if (end == null) {
+			throw new IllegalArgumentException("the end point is null!");
+		}
+		double width = 0, height = 0;
+		width = start.getX() - end.getX();
+		height = start.getY() - end.getY();
+		if (width < 0) width *= -1;
+		if (height < 0) height *= -1;
+		double x = 0, y = 0;
+		if (start.getX() < end.getX()) {
+			x = start.getX() + width/2;
+		}else {
+			x = start.getX() - width/2;
+		}
+		if (start.getY() < end.getY()) {
+			y = start.getY() + height/2;
+		}else {
+			y = start.getY() - height/2;
+		}
+		Point2D.Double point = new Point2D.Double(x, y);
+		this.setCenter(point);
+		this.setHeight(height);
+		this.setWidth(width);
+	}
+
 }

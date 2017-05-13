@@ -1,5 +1,6 @@
 package iain.model;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +9,8 @@ import cs355.model.drawing.Shape;
 
 public class Model extends CS355Drawing {
 	
-	public static final int TRIANGLE_POINTS = 3;
+	public static final int TOTAL_TRIANGLE_POINTS = 3;
+	private static final double SELECT_TOLERANCE = 4;
 	
 	private List<Shape> shapes;
 	private static final int BACK_INDEX = 0;
@@ -121,5 +123,27 @@ public class Model extends CS355Drawing {
 		this.setChanged();
 		this.notifyObservers();
 	}
+	
+	public Shape selectShape(Point2D.Double point) {
+		double x, y;
+		Point2D.Double objPoint;
+		for (Shape s : shapes) {
+			x = point.x - s.getCenter().x;
+			y = point.y - s.getCenter().y;
+			objPoint = new Point2D.Double(x, y);
+			if (s.pointInShape(objPoint, SELECT_TOLERANCE)) {
+				return s;
+			}
+		}
+		return null;
+	}
 
 }
+
+
+
+
+
+
+
+

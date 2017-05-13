@@ -9,9 +9,6 @@ import java.awt.geom.Point2D;
  */
 public class Line extends Shape {
 
-	// The starting point of the line.
-	private Point2D.Double start;
-
 	// The ending point of the line.
 	private Point2D.Double end;
 
@@ -24,28 +21,10 @@ public class Line extends Shape {
 	public Line(Color color, Point2D.Double start, Point2D.Double end) {
 
 		// Initialize the superclass.
-		super(color);
-
-		// Set fields.
-		this.start = start;
+		super(color, start);
+		this.type = Shape.SHAPE_TYPE.line;
+		// Set the field.
 		this.end = end;
-		this.shapeType = Shape.SHAPE_TYPE.line;
-	}
-
-	/**
-	 * Getter for this Line's starting point.
-	 * @return the starting point as a Java point.
-	 */
-	public Point2D.Double getStart() {
-		return start;
-	}
-
-	/**
-	 * Setter for this Line's starting point.
-	 * @param start the new starting point for the Line.
-	 */
-	public void setStart(Point2D.Double start) {
-		this.start = start;
 	}
 
 	/**
@@ -63,4 +42,25 @@ public class Line extends Shape {
 	public void setEnd(Point2D.Double end) {
 		this.end = end;
 	}
+
+	/**
+	 * Add your code to do an intersection test
+	 * here. You <i>will</i> need the tolerance.
+	 * @param pt = the point to test against.
+	 * @param tolerance = the allowable tolerance.
+	 * @return true if pt is in the shape,
+	 *		   false otherwise.
+	 */
+	@Override
+	public boolean pointInShape(Point2D.Double pt, double tolerance) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public void resetShape(Point2D.Double start, Point2D.Double end) {
+		assert(start.getX() == this.center.getX());
+		assert(start.getY() == this.center.getY());
+		this.end = end;
+	}
+
 }

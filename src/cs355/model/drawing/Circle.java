@@ -9,9 +9,6 @@ import java.awt.geom.Point2D;
  */
 public class Circle extends Shape {
 
-	// The center of this shape.
-	private Point2D.Double center;
-
 	// The radius.
 	private double radius;
 
@@ -24,28 +21,10 @@ public class Circle extends Shape {
 	public Circle(Color color, Point2D.Double center, double radius) {
 
 		// Initialize the superclass.
-		super(color);
-
-		// Set fields.
-		this.center = center;
+		super(color, center);
+		this.type = Shape.SHAPE_TYPE.circle;
+		// Set the field.
 		this.radius = radius;
-		this.shapeType = Shape.SHAPE_TYPE.circle;
-	}
-
-	/**
-	 * Getter for this shape's center.
-	 * @return this shape's center as a Java point.
-	 */
-	public Point2D.Double getCenter() {
-		return center;
-	}
-
-	/**
-	 * Setter for this shape's center.
-	 * @param center the new center as a Java point.
-	 */
-	public void setCenter(Point2D.Double center) {
-		this.center = center;
 	}
 
 	/**
@@ -63,4 +42,62 @@ public class Circle extends Shape {
 	public void setRadius(double radius) {
 		this.radius = radius;
 	}
+
+	/**
+	 * Add your code to do an intersection test
+	 * here. You shouldn't need the tolerance.
+	 * @param pt = the point to test against.
+	 * @param tolerance = the allowable tolerance.
+	 * @return true if pt is in the shape,
+	 *		   false otherwise.
+	 */
+	@Override
+	public boolean pointInShape(Point2D.Double pt, double tolerance) {
+		double x = pt.getX(), y = pt.getY();
+		x = radius - x;
+		y = radius - y;
+		x *= x;
+		y *= y;
+		double r2 = radius * radius;
+		if(x < r2 && y < r2) {
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void resetShape(Point2D.Double start, Point2D.Double end) {
+		if (end == null) {
+			throw new IllegalArgumentException("the end point is null!");
+		}
+		double width = start.getX() - end.getX();
+		if (width < 0) width *= -1;
+		double height = start.getY() - end.getY();
+		if (height < 0) height *= -1;
+		double radius = 0;
+		double x = 0, y = 0;
+		// check to see which one is smaller and make the radius the same size as that one
+		// then set the center a radius length away from the start point
+		if (height < width) { 
+			radius =  height / 2;
+			y = (start.getY() + end.getY()) / 2;
+			if (start.getX() < end.getX()) {
+				x = start.getX() + radius;
+			}else {
+				x = start.getX() - radius;
+			}
+		}else {
+			radius =  width / 2;
+			x = (start.getX() + end.getX()) / 2;
+			if (start.getY() < end.getY()) {
+				y = start.getY() + radius;
+			}else {
+				y = start.getY() - radius;
+			}
+		}
+		Point2D.Double center = new Point2D.Double(x, y);
+		this.setRadius(radius);
+		this.setCenter(center);
+	}
+
 }
