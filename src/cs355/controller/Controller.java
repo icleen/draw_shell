@@ -36,8 +36,6 @@ public class Controller implements CS355Controller {
 	
 	private static final int INIT_SIZE = 0;
 	
-	private Shape selected = null;
-	
 	private enum STATES {
 			circle, ellipse, line, rectangle, square, triangle, select, zoomIn, zoomOut
 	};
@@ -100,12 +98,15 @@ public class Controller implements CS355Controller {
 			currentShape = new Square(currentColor, start, INIT_SIZE);
 			break;
 		case select:
-			selected = Model.SINGLETON.selectShape(start);
+			currentShape = Model.SINGLETON.selectShape(start);
+			if (currentShape != null) {
+				currentIndex = currentShape.getIndex();
+			}
 			break;
 		default:
 			break;
 		}
-		if (currentShape != null) {
+		if (currentShape != null && this.currentState != STATES.select) {
 			currentIndex = Model.SINGLETON.addShape(currentShape);
 		}
 	}
@@ -124,6 +125,13 @@ public class Controller implements CS355Controller {
 		if (currentState != STATES.select && currentState != STATES.zoomIn 
 				&& currentState != STATES.zoomOut) {
 			currentShape.resetShape(start, point);
+		}else if (currentState == STATES.select && currentShape != null) {
+			double x = point.getX() - start.getX(), y = point.getY() - start.getY();
+			x += currentShape.getCenter().getX();
+			y += currentShape.getCenter().getY();
+			Point2D.Double center = new Point2D.Double(x, y);
+			currentShape.setCenter(center);
+			start = point;
 		}
 		if (currentShape != null) {
 			Model.SINGLETON.deleteShape(currentIndex);
@@ -265,8 +273,9 @@ public class Controller implements CS355Controller {
 
 	@Override
 	public void doDeleteShape() {
-		// TODO Auto-generated method stub
-
+		if (currentShape != null) {
+			Model.SINGLETON.deleteShape(currentIndex);
+		}
 	}
 
 	@Override

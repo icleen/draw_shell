@@ -75,7 +75,17 @@ public class Ellipse extends Shape {
 	 */
 	@Override
 	public boolean pointInShape(Point2D.Double pt, double tolerance) {
-		throw new UnsupportedOperationException("Not supported yet.");
+		double x = pt.x, y = pt.y;
+		x = x /(width/2);
+		x *= x;
+		y = y /(height/2);
+		y *= y;
+		if((x + y) <= 1) {
+			this.isSelected = true;
+		}else {
+			this.isSelected = false;
+		}
+		return this.isSelected;
 	}
 
 	@Override

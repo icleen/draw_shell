@@ -107,4 +107,8 @@ public abstract class Shape {
 		this.index = index;
 	}
 	
+	public boolean shapeSelected() {
+		return isSelected;
+	}
+	
 }

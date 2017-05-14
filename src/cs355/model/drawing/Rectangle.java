@@ -75,7 +75,16 @@ public class Rectangle extends Shape {
 	 */
 	@Override
 	public boolean pointInShape(Point2D.Double pt, double tolerance) {
-		throw new UnsupportedOperationException("Not supported yet.");
+		double x = pt.x, y = pt.y;
+		if (x < 0) x *= -1;
+		if (y < 0) y *= -1;
+		double w = width/2, h = height/2;
+		if (x <= w && y <= h) {
+			this.isSelected = true;
+		}else {
+			this.isSelected = false;
+		}
+		return this.isSelected;
 	}
 
 	@Override

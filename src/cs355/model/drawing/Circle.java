@@ -54,15 +54,15 @@ public class Circle extends Shape {
 	@Override
 	public boolean pointInShape(Point2D.Double pt, double tolerance) {
 		double x = pt.getX(), y = pt.getY();
-		x = radius - x;
-		y = radius - y;
 		x *= x;
 		y *= y;
 		double r2 = radius * radius;
-		if(x < r2 && y < r2) {
-			return true;
+		if((x + y) <= r2) {
+			this.isSelected = true;
+		}else {
+			this.isSelected = false;
 		}
-		return false;
+		return this.isSelected;
 	}
 
 	@Override

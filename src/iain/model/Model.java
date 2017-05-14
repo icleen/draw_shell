@@ -125,17 +125,28 @@ public class Model extends CS355Drawing {
 	}
 	
 	public Shape selectShape(Point2D.Double point) {
+//		System.out.println("selecting out of " + shapes.size());
 		double x, y;
 		Point2D.Double objPoint;
-		for (Shape s : shapes) {
+		Shape selected = null;
+		boolean isFound = false;
+		Shape s;
+		for (int i = 0; i < shapes.size(); i++) {
+			s = shapes.get(i);
 			x = point.x - s.getCenter().x;
 			y = point.y - s.getCenter().y;
 			objPoint = new Point2D.Double(x, y);
-			if (s.pointInShape(objPoint, SELECT_TOLERANCE)) {
-				return s;
+//			System.out.print("check: ");
+			if (s.pointInShape(objPoint, SELECT_TOLERANCE) && !isFound) {
+//				System.out.println("found");
+				selected = s;
+				selected.setIndex(i);
+				isFound = true;
 			}
 		}
-		return null;
+		this.setChanged();
+		this.notifyObservers();
+		return selected;
 	}
 
 }
