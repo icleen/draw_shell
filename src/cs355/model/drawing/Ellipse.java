@@ -74,8 +74,12 @@ public class Ellipse extends Shape {
 	 *		   false otherwise.
 	 */
 	@Override
-	public boolean pointInShape(Point2D.Double pt, double tolerance) {
-		double x = pt.x, y = pt.y;
+	public boolean pointInShape(Point2D.Double point, double tolerance) {
+		double x = point.x - getCenter().x;
+		double y = point.y - getCenter().y;
+		Point2D.Double pt = new Point2D.Double(x, y);
+		x = pt.x;
+		y = pt.y;
 		x = x /(width/2);
 		x *= x;
 		y = y /(height/2);

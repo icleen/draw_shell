@@ -53,7 +53,37 @@ public class Line extends Shape {
 	 */
 	@Override
 	public boolean pointInShape(Point2D.Double pt, double tolerance) {
-		throw new UnsupportedOperationException("Not supported yet.");
+		double x = end.getX() - center.getX(), y = end.getY() - center.getY();
+//		System.out.println("p0: " + center.x + "p1: " + center.y);
+//		System.out.println("q0: " + pt.x + "q1: " + pt.y);
+//		System.out.println("x: " + x + ", y: " + y);
+		Point2D.Double d = new Point2D.Double(x, y);
+		x *= x;
+		y *= y;
+		double length = Math.sqrt(x + y);
+//		System.out.println("length: " + length);
+		d.setLocation(d.x/length, d.y/length);
+//		System.out.println("d: (" + d.x + ", " + d.y + ")");
+		x = (pt.x - center.x) * d.x;
+		y = (pt.y - center.y) * d.y;
+		double t = x + y;
+//		System.out.println("t: " + t);
+		if (t > length || t < 0) {
+			this.isSelected = false;
+		}else {
+			x = pt.x - (center.x + (t * d.x));
+			y = pt.y - (center.y + (t * d.y));
+			x *= x;
+			y *= y;
+			double distance = Math.sqrt(x + y);
+//			System.out.println("distance: " + distance);
+			if (distance <= tolerance) {
+				this.isSelected = true;
+			}else {
+				this.isSelected = false;
+			}
+		}
+		return this.isSelected;
 	}
 
 	@Override

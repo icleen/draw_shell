@@ -53,8 +53,12 @@ public class Square extends Shape {
 	 *		   false otherwise.
 	 */
 	@Override
-	public boolean pointInShape(Point2D.Double pt, double tolerance) {
-		double x = pt.x, y = pt.y;
+	public boolean pointInShape(Point2D.Double point, double tolerance) {
+		double x = point.x - getCenter().x;
+		double y = point.y - getCenter().y;
+		Point2D.Double pt = new Point2D.Double(x, y);
+		x = pt.x;
+		y = pt.y;
 		if (x < 0) x *= -1;
 		if (y < 0) y *= -1;
 		double radius = size/2;

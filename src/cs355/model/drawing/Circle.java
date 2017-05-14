@@ -52,8 +52,12 @@ public class Circle extends Shape {
 	 *		   false otherwise.
 	 */
 	@Override
-	public boolean pointInShape(Point2D.Double pt, double tolerance) {
-		double x = pt.getX(), y = pt.getY();
+	public boolean pointInShape(Point2D.Double point, double tolerance) {
+		double x = point.x - getCenter().x;
+		double y = point.y - getCenter().y;
+		Point2D.Double pt = new Point2D.Double(x, y);
+		x = pt.getX();
+		y = pt.getY();
 		x *= x;
 		y *= y;
 		double r2 = radius * radius;

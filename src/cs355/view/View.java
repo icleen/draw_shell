@@ -20,6 +20,7 @@ import iain.model.ShapeSizer;
 public class View implements ViewRefresher {
 	
 	private static final int BORDER_SIZE = 5;
+	private static final int LINE_SIZE = 1;
 	
 	public View() {
 		Model.SINGLETON.addObserver(this);
@@ -62,6 +63,7 @@ public class View implements ViewRefresher {
 			case line:
 				g2d.setColor(s.getColor());
 				args = ShapeSizer.inst().getLine((Line) s);
+				g2d.setStroke(new BasicStroke(LINE_SIZE));
 				g2d.drawLine(args[0], args[1], args[2], args[3]);
 				break;
 			case rectangle:

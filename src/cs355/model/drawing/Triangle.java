@@ -93,14 +93,43 @@ public class Triangle extends Shape {
 	 *		   false otherwise.
 	 */
 	@Override
-	public boolean pointInShape(Point2D.Double pt, double tolerance) {
-		throw new UnsupportedOperationException("Not supported yet.");
+	public boolean pointInShape(Point2D.Double point, double tolerance) {
+		double x = point.x - getCenter().x;
+		double y = point.y - getCenter().y;
+		Point2D.Double pt = new Point2D.Double(x, y);
+		double x1 = pt.x - a.x, y1 = pt.y - a.y;
+		double x2 = b.x - a.x, y2 = b.y - a.y;
+		double one = x1 * y2 * -1;
+		double two = y1 * x2;
+		double result1 = one + two;
+		
+		x1 = pt.x - b.x;
+		y1 = pt.y - b.y;
+		x2 = c.x - b.x;
+		y2 = c.y - b.y;
+		one = x1 * y2 * -1;
+		two = y1 * x2;
+		double result2 = one + two;
+		
+		x1 = pt.x - c.x;
+		y1 = pt.y - c.y;
+		x2 = a.x - c.x;
+		y2 = a.y - c.y;
+		one = x1 * y2 * -1;
+		two = y1 * x2;
+		double result3 = one + two;
+		if (result1 < 0 && result2 < 0 && result3 < 0) {
+			this.isSelected = true;
+		}else if (result1 > 0 && result2 > 0 && result3 > 0) {
+			this.isSelected = true;
+		}else {
+			this.isSelected = false;
+		}
+		return this.isSelected;
 	}
 
 	@Override
 	public void resetShape(Double start, Double end) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }
