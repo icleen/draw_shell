@@ -3,6 +3,9 @@ package cs355.model.drawing;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 
+import iain.linear.Vector;
+import iain.linear.Vector2D;
+
 /**
  * Add your line code here. You can add fields, but you cannot
  * change the ones that already exist. This includes the names!
@@ -53,29 +56,19 @@ public class Line extends Shape {
 	 */
 	@Override
 	public boolean pointInShape(Point2D.Double pt, double tolerance) {
-		double x = end.getX() - center.getX(), y = end.getY() - center.getY();
-//		System.out.println("p0: " + center.x + "p1: " + center.y);
-//		System.out.println("q0: " + pt.x + "q1: " + pt.y);
-//		System.out.println("x: " + x + ", y: " + y);
-		Point2D.Double d = new Point2D.Double(x, y);
-		x *= x;
-		y *= y;
-		double length = Math.sqrt(x + y);
-//		System.out.println("length: " + length);
-		d.setLocation(d.x/length, d.y/length);
-//		System.out.println("d: (" + d.x + ", " + d.y + ")");
-		x = (pt.x - center.x) * d.x;
-		y = (pt.y - center.y) * d.y;
-		double t = x + y;
-//		System.out.println("t: " + t);
+		Vector2D p0 = new Vector2D(center.getX(), center.getY());
+		Vector2D p1 = new Vector2D(end.getX(), end.getY());
+		Vector2D q = new Vector2D(pt);
+		Vector2D d = (Vector2D) p1.subtractVector(p0);
+		double length = d.length();
+		d.normalize();
+		double t = d.dotProduct(q.subtractVector(p0));
+		System.out.println("t: " + t);
 		if (t > length || t < 0) {
 			this.isSelected = false;
 		}else {
-			x = pt.x - (center.x + (t * d.x));
-			y = pt.y - (center.y + (t * d.y));
-			x *= x;
-			y *= y;
-			double distance = Math.sqrt(x + y);
+			Vector2D q1 = (Vector2D) p0.addVector( d.multiply( q.subtractVector(p0).dotProduct(d) ) );
+			double distance = q.subtractVector(q1).length();
 //			System.out.println("distance: " + distance);
 			if (distance <= tolerance) {
 				this.isSelected = true;
