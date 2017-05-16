@@ -54,11 +54,8 @@ public class Square extends Shape {
 	 */
 	@Override
 	public boolean pointInShape(Point2D.Double point, double tolerance) {
-		double x = point.x - getCenter().x;
-		double y = point.y - getCenter().y;
-		Point2D.Double pt = new Point2D.Double(x, y);
-		x = pt.x;
-		y = pt.y;
+		double x = point.x;
+		double y = point.y;
 		if (x < 0) x *= -1;
 		if (y < 0) y *= -1;
 		double radius = size/2;
@@ -99,6 +96,16 @@ public class Square extends Shape {
 		Point2D.Double center = new Point2D.Double(x, y);
 		this.setCenter(center);
 		this.setSize(size);
+	}
+
+	@Override
+	public double getWidth() {
+		return size;
+	}
+
+	@Override
+	public double getHeight() {
+		return size;
 	}
 
 }

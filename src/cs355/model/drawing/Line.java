@@ -1,9 +1,9 @@
 package cs355.model.drawing;
 
 import java.awt.Color;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
-import iain.linear.Vector;
 import iain.linear.Vector2D;
 
 /**
@@ -27,7 +27,7 @@ public class Line extends Shape {
 		super(color, start);
 		this.type = Shape.SHAPE_TYPE.line;
 		// Set the field.
-		this.end = end;
+		this.end = new Point2D.Double(end.x - start.x, end.y - start.y);
 	}
 
 	/**
@@ -43,7 +43,11 @@ public class Line extends Shape {
 	 * @param end the new ending point for the Line.
 	 */
 	public void setEnd(Point2D.Double end) {
-		this.end = end;
+		AffineTransform worldToObj = new AffineTransform();
+		worldToObj.rotate(this.getRotation() * -1);
+		worldToObj.translate(this.getCenter().x * -1, this.getCenter().y * -1);
+		this.end = new Point2D.Double(0, 0);
+		worldToObj.transform(end, this.end);
 	}
 
 	/**
@@ -56,14 +60,14 @@ public class Line extends Shape {
 	 */
 	@Override
 	public boolean pointInShape(Point2D.Double pt, double tolerance) {
-		Vector2D p0 = new Vector2D(center.getX(), center.getY());
+		Vector2D p0 = new Vector2D(0, 0);
 		Vector2D p1 = new Vector2D(end.getX(), end.getY());
 		Vector2D q = new Vector2D(pt);
-		Vector2D d = (Vector2D) p1.subtractVector(p0);
+		Vector2D d = p1.subtractVector(p0);
 		double length = d.length();
 		d.normalize();
 		double t = d.dotProduct(q.subtractVector(p0));
-		System.out.println("t: " + t);
+//		System.out.println("t: " + t);
 		if (t > length || t < 0) {
 			this.isSelected = false;
 		}else {
@@ -83,7 +87,17 @@ public class Line extends Shape {
 	public void resetShape(Point2D.Double start, Point2D.Double end) {
 		assert(start.getX() == this.center.getX());
 		assert(start.getY() == this.center.getY());
-		this.end = end;
+		this.setEnd(end);
+	}
+
+	@Override
+	public double getWidth() {
+		return 0;
+	}
+
+	@Override
+	public double getHeight() {
+		return 0;
 	}
 
 }

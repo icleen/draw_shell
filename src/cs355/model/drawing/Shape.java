@@ -111,4 +111,7 @@ public abstract class Shape {
 		return isSelected;
 	}
 	
+	public abstract double getWidth();
+	public abstract double getHeight();
+	
 }

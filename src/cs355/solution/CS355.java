@@ -3,8 +3,8 @@ package cs355.solution;
 import java.awt.Color;
 
 import cs355.GUIFunctions;
-import cs355.controller.Controller;
-import cs355.view.View;
+import iain.controller.Controller;
+import iain.view.View;
 
 /**
  * This is the main class. The program starts here.

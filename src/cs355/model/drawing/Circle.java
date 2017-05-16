@@ -3,6 +3,8 @@ package cs355.model.drawing;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 
+import iain.linear.Vector2D;
+
 /**
  * Add your circle code here. You can add fields, but you cannot
  * change the ones that already exist. This includes the names!
@@ -53,15 +55,9 @@ public class Circle extends Shape {
 	 */
 	@Override
 	public boolean pointInShape(Point2D.Double point, double tolerance) {
-		double x = point.x - getCenter().x;
-		double y = point.y - getCenter().y;
-		Point2D.Double pt = new Point2D.Double(x, y);
-		x = pt.getX();
-		y = pt.getY();
-		x *= x;
-		y *= y;
-		double r2 = radius * radius;
-		if((x + y) <= r2) {
+		Vector2D p = new Vector2D(point);
+		if(p.length() <= radius) {
+			System.out.println("length: " + p.toString() + ", radius: " + radius);
 			this.isSelected = true;
 		}else {
 			this.isSelected = false;
@@ -78,6 +74,9 @@ public class Circle extends Shape {
 		if (width < 0) width *= -1;
 		double height = start.getY() - end.getY();
 		if (height < 0) height *= -1;
+		
+//		System.out.println("width: " + width + ", height: " + height);
+		
 		double radius = 0;
 		double x = 0, y = 0;
 		// check to see which one is smaller and make the radius the same size as that one
@@ -99,9 +98,21 @@ public class Circle extends Shape {
 				y = start.getY() - radius;
 			}
 		}
+//		System.out.println("radius: " + radius);
+//		System.out.println("xy: " + x + ", " + y + ")");
 		Point2D.Double center = new Point2D.Double(x, y);
 		this.setRadius(radius);
 		this.setCenter(center);
+	}
+
+	@Override
+	public double getWidth() {
+		return radius * 2;
+	}
+
+	@Override
+	public double getHeight() {
+		return radius * 2;
 	}
 
 }

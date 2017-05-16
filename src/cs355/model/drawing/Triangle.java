@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 
+import iain.linear.Vector2D;
+import iain.model.Model;
+
 /**
  * Add your triangle code here. You can add fields, but you cannot
  * change the ones that already exist. This includes the names!
@@ -94,30 +97,14 @@ public class Triangle extends Shape {
 	 */
 	@Override
 	public boolean pointInShape(Point2D.Double point, double tolerance) {
-		double x = point.x - getCenter().x;
-		double y = point.y - getCenter().y;
-		Point2D.Double pt = new Point2D.Double(x, y);
-		double x1 = pt.x - a.x, y1 = pt.y - a.y;
-		double x2 = b.x - a.x, y2 = b.y - a.y;
-		double one = x1 * y2 * -1;
-		double two = y1 * x2;
-		double result1 = one + two;
+		Vector2D q = new Vector2D(point);
+		Vector2D p0 = new Vector2D(a);
+		Vector2D p1 = new Vector2D(b);
+		Vector2D p2 = new Vector2D(c);
 		
-		x1 = pt.x - b.x;
-		y1 = pt.y - b.y;
-		x2 = c.x - b.x;
-		y2 = c.y - b.y;
-		one = x1 * y2 * -1;
-		two = y1 * x2;
-		double result2 = one + two;
-		
-		x1 = pt.x - c.x;
-		y1 = pt.y - c.y;
-		x2 = a.x - c.x;
-		y2 = a.y - c.y;
-		one = x1 * y2 * -1;
-		two = y1 * x2;
-		double result3 = one + two;
+		double result1 = q.subtractVector(p0).dotProduct(p1.subtractVector(p0).perpendicular());
+		double result2 = q.subtractVector(p1).dotProduct(p2.subtractVector(p1).perpendicular());;
+		double result3 = q.subtractVector(p2).dotProduct(p0.subtractVector(p2).perpendicular());;
 		if (result1 < 0 && result2 < 0 && result3 < 0) {
 			this.isSelected = true;
 		}else if (result1 > 0 && result2 > 0 && result3 > 0) {
@@ -130,6 +117,32 @@ public class Triangle extends Shape {
 
 	@Override
 	public void resetShape(Double start, Double end) {
+	}
+
+	@Override
+	public double getWidth() {
+		return 0;
+	}
+
+	@Override
+	public double getHeight() {
+		return 0;
+	}
+	
+	public int[] getXCoordinates() {
+		int[] points = new int[Model.TOTAL_TRIANGLE_POINTS];
+		points[0] = (int) (a.x);
+		points[1] = (int) (b.x);
+		points[2] = (int) (c.x);
+		return points;
+	}
+	
+	public int[] getYCoordinates() {
+		int[] points = new int[Model.TOTAL_TRIANGLE_POINTS];
+		points[0] = (int) (a.y);
+		points[1] = (int) (b.y);
+		points[2] = (int) (c.y);
+		return points;
 	}
 
 }

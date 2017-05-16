@@ -1,5 +1,6 @@
 package iain.model;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +38,10 @@ public class Model extends CS355Drawing {
 		return shapes.size() - 1;
 	}
 	
-	public void setShape(Shape s, int index) {
+	public void setShape(int index, Shape s) {
 		shapes.set(index, s);
+		this.setChanged();
+		this.notifyObservers();
 	}
 
 	@Override
@@ -125,16 +128,23 @@ public class Model extends CS355Drawing {
 	}
 	
 	public Shape selectShape(Point2D.Double point) {
-//		System.out.println("selecting out of " + shapes.size());
+		Point2D.Double objCoord = null;
+		AffineTransform worldToObj = null;
 		Shape selected = null;
 		boolean isFound = false;
 		Shape s;
 		for (int i = 0; i < shapes.size(); i++) {
 			s = shapes.get(i);
-			if (s.pointInShape(point, SELECT_TOLERANCE) && !isFound) {
-//				System.out.println("found");
+			s.setIndex(i);
+			objCoord = new Point2D.Double(0, 0);
+			worldToObj = new AffineTransform();
+			worldToObj.rotate(s.getRotation() * -1);
+			worldToObj.translate(s.getCenter().x * -1, s.getCenter().y * -1);
+			worldToObj.transform(point, objCoord);
+			
+			if (s.pointInShape(objCoord, SELECT_TOLERANCE) && !isFound) {
+				System.out.println("found");
 				selected = s;
-				selected.setIndex(i);
 				isFound = true;
 			}
 		}

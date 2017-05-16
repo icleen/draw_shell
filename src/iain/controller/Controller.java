@@ -1,4 +1,4 @@
-package cs355.controller;
+package iain.controller;
 
 import java.awt.Color;
 import java.awt.event.MouseEvent;
@@ -19,6 +19,7 @@ import java.util.List;
 import com.google.gson.Gson;
 
 import cs355.GUIFunctions;
+import cs355.controller.CS355Controller;
 import cs355.model.drawing.Circle;
 import cs355.model.drawing.Ellipse;
 import cs355.model.drawing.Line;
@@ -56,13 +57,13 @@ public class Controller implements CS355Controller {
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 		if (currentState == STATES.triangle) {
-			Point2D.Double p = new Point2D.Double();
-			p.setLocation(arg0.getX(), arg0.getY());
+			Point2D.Double p = new Point2D.Double(arg0.getX(), arg0.getY());
 			trianglePoints.add(p);
 			if (trianglePoints.size() == Model.TOTAL_TRIANGLE_POINTS) {
 				Triangle triangle = ShapeSizer.inst().setTriangle(currentColor, trianglePoints);
 				Model.SINGLETON.addShape(triangle);
 				trianglePoints.clear();
+				System.out.println("adding triangle");
 			}
 		}else if (currentState == STATES.select) {
 			
@@ -101,6 +102,8 @@ public class Controller implements CS355Controller {
 			currentShape = Model.SINGLETON.selectShape(start);
 			if (currentShape != null) {
 				currentIndex = currentShape.getIndex();
+			}else {
+				currentIndex = -1;
 			}
 			break;
 		default:
@@ -113,19 +116,23 @@ public class Controller implements CS355Controller {
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-		start = null;
-		currentShape = null;
-		currentIndex = -1;
+		if (currentState != STATES.select) {
+			start = null;
+			currentShape = null;
+			currentIndex = -1;
+		}
 	}
 
 	@Override
-	public void mouseDragged(MouseEvent arg0) {
-		Point2D.Double point = new Point2D.Double();
-		point.setLocation(arg0.getX(), arg0.getY());
+	public void mouseDragged(MouseEvent end) {
+		Point2D.Double point = new Point2D.Double(end.getX(), end.getY());
+//		System.out.println("start: (" + start.x + ", " + start.y + ")");
+//		System.out.println("end: (" + end.getX() + ", " + end.getY() + ")");
 		if (currentState != STATES.select && currentState != STATES.zoomIn 
-				&& currentState != STATES.zoomOut) {
+				&& currentState != STATES.zoomOut && currentState != STATES.triangle) {
 			currentShape.resetShape(start, point);
-		}else if (currentState == STATES.select && currentShape != null) {
+		}
+		else if (currentState == STATES.select && currentShape != null) {
 			double x = point.getX() - start.getX(), y = point.getY() - start.getY();
 			x += currentShape.getCenter().getX();
 			y += currentShape.getCenter().getY();
@@ -134,8 +141,7 @@ public class Controller implements CS355Controller {
 			start = point;
 		}
 		if (currentShape != null) {
-			Model.SINGLETON.deleteShape(currentIndex);
-			currentIndex = Model.SINGLETON.addShape(currentShape);
+			Model.SINGLETON.setShape(currentIndex, currentShape);
 		}
 	}
 
@@ -147,6 +153,10 @@ public class Controller implements CS355Controller {
 	public void colorButtonHit(Color c) {
 		currentColor = c;
 		GUIFunctions.changeSelectedColor(c);
+		if (currentShape != null) {
+			currentShape.setColor(currentColor);
+			Model.SINGLETON.setShape(currentIndex, currentShape);
+		}
 	}
 
 	@Override
