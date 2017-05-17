@@ -82,8 +82,12 @@ public class Rectangle extends Shape {
 		double w = width/2, h = height/2;
 		if (x <= w && y <= h) {
 			this.isSelected = true;
+			this.rotating = false;
+		}else if (handle != null && this.isSelected) {
+			this.isSelected = this.pointInHandle(point, tolerance);
 		}else {
 			this.isSelected = false;
+			this.rotating = false;
 		}
 		return this.isSelected;
 	}
@@ -113,6 +117,7 @@ public class Rectangle extends Shape {
 		this.setCenter(point);
 		this.setHeight(height);
 		this.setWidth(width);
+		this.resetHandle();
 	}
 
 }

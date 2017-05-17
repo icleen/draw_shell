@@ -1,5 +1,6 @@
 package iain.model;
 
+import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.List;
 
 import cs355.model.drawing.CS355Drawing;
 import cs355.model.drawing.Shape;
+import cs355.model.drawing.Triangle;
 
 public class Model extends CS355Drawing {
 	
@@ -60,6 +62,8 @@ public class Model extends CS355Drawing {
 		Shape s = shapes.get(index);
 		shapes.remove(index);
 		shapes.add(s);
+		s.setIndex(shapes.size() - 1);
+		System.out.println("moveToFront " + index + ", " + (shapes.size() - 1));
 		this.setChanged();
 		this.notifyObservers();
 	}
@@ -74,6 +78,8 @@ public class Model extends CS355Drawing {
 		Shape s = shapes.get(index);
 		shapes.remove(index);
 		shapes.add(BACK_INDEX, s);
+		s.setIndex(BACK_INDEX);
+		System.out.println("moveToBack " + index + ", " + (BACK_INDEX));
 		this.setChanged();
 		this.notifyObservers();
 	}
@@ -88,6 +94,8 @@ public class Model extends CS355Drawing {
 		Shape s = shapes.get(index);
 		shapes.remove(index);
 		shapes.add(index + 1, s);
+		s.setIndex(index + 1);
+		System.out.println("moveForward " + index + ", " + (index + 1));
 		this.setChanged();
 		this.notifyObservers();
 	}
@@ -102,6 +110,8 @@ public class Model extends CS355Drawing {
 		Shape s = shapes.get(index);
 		shapes.remove(index);
 		shapes.add(index - 1, s);
+		s.setIndex(index - 1);
+		System.out.println("moveBackward " + index + ", " + (index - 1));
 		this.setChanged();
 		this.notifyObservers();
 	}
@@ -133,7 +143,7 @@ public class Model extends CS355Drawing {
 		Shape selected = null;
 		boolean isFound = false;
 		Shape s;
-		for (int i = 0; i < shapes.size(); i++) {
+		for (int i = shapes.size() - 1; i >= 0; i--) {
 			s = shapes.get(i);
 			s.setIndex(i);
 			objCoord = new Point2D.Double(0, 0);
@@ -143,14 +153,49 @@ public class Model extends CS355Drawing {
 			worldToObj.transform(point, objCoord);
 			
 			if (s.pointInShape(objCoord, SELECT_TOLERANCE) && !isFound) {
-				System.out.println("found");
 				selected = s;
 				isFound = true;
+				System.out.println("selected: " + selected.getShapeType());
+			}else {
+				s.setShapeSelected(false);
+				s.setRotating(false);
 			}
 		}
 		this.setChanged();
 		this.notifyObservers();
 		return selected;
+	}
+	
+	public void deselect() {
+		System.out.println("deselect");
+		for (int i = shapes.size() - 1; i >= 0; i--) {
+			shapes.get(i).setShapeSelected(false);
+			shapes.get(i).setRotating(false);
+		}
+		this.setChanged();
+		this.notifyObservers();
+	}
+	
+	public Triangle setTriangle(Color currentColor, List<Point2D.Double> trianglePoints) {
+		double x = trianglePoints.get(0).x + trianglePoints.get(1).x + trianglePoints.get(2).x;
+		x = x / Model.TOTAL_TRIANGLE_POINTS;
+		double y = trianglePoints.get(0).y + trianglePoints.get(1).y + trianglePoints.get(2).y;
+		y = y / Model.TOTAL_TRIANGLE_POINTS;
+		Point2D.Double center = new Point2D.Double(x, y);
+		
+		x = trianglePoints.get(0).getX() - center.getX();
+		y = trianglePoints.get(0).getY() - center.getY();
+		Point2D.Double one = new Point2D.Double(x, y);
+		
+		x = trianglePoints.get(1).getX() - center.getX();
+		y = trianglePoints.get(1).getY() - center.getY();
+		Point2D.Double two = new Point2D.Double(x, y);
+		
+		x = trianglePoints.get(2).getX() - center.getX();
+		y = trianglePoints.get(2).getY() - center.getY();
+		Point2D.Double three = new Point2D.Double(x, y);
+		
+		return new Triangle(currentColor, center, one, two, three);
 	}
 
 }

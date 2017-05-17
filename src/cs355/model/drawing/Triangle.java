@@ -37,6 +37,7 @@ public class Triangle extends Shape {
 		this.a = a;
 		this.b = b;
 		this.c = c;
+		this.resetHandle();
 	}
 
 	/**
@@ -109,14 +110,19 @@ public class Triangle extends Shape {
 			this.isSelected = true;
 		}else if (result1 > 0 && result2 > 0 && result3 > 0) {
 			this.isSelected = true;
+			this.rotating = false;
+		}else if (handle != null && this.isSelected) {
+			this.isSelected = this.pointInHandle(point, tolerance);
 		}else {
 			this.isSelected = false;
+			this.rotating = false;
 		}
 		return this.isSelected;
 	}
 
 	@Override
 	public void resetShape(Double start, Double end) {
+		this.resetHandle();
 	}
 
 	@Override
@@ -126,7 +132,13 @@ public class Triangle extends Shape {
 
 	@Override
 	public double getHeight() {
-		return 0;
+		if (a.y < b.y && a.y < c.y) {
+			return a.y * -2;
+		}else if (b.y < a.y && b.y < c.y) {
+			return b.y * -2;
+		}else {
+			return c.y * -2;
+		}
 	}
 	
 	public int[] getXCoordinates() {

@@ -2,6 +2,7 @@ package iain.controller;
 
 import java.awt.Color;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -29,7 +30,6 @@ import cs355.model.drawing.Square;
 import cs355.model.drawing.Triangle;
 import iain.model.Model;
 import iain.model.SaveStructure;
-import iain.model.ShapeSizer;
 
 public class Controller implements CS355Controller {
 	
@@ -37,7 +37,7 @@ public class Controller implements CS355Controller {
 	
 	private static final int INIT_SIZE = 0;
 	
-	private enum STATES {
+	private static enum STATES {
 			circle, ellipse, line, rectangle, square, triangle, select, zoomIn, zoomOut
 	};
 	private STATES currentState;
@@ -60,7 +60,7 @@ public class Controller implements CS355Controller {
 			Point2D.Double p = new Point2D.Double(arg0.getX(), arg0.getY());
 			trianglePoints.add(p);
 			if (trianglePoints.size() == Model.TOTAL_TRIANGLE_POINTS) {
-				Triangle triangle = ShapeSizer.inst().setTriangle(currentColor, trianglePoints);
+				Triangle triangle = Model.SINGLETON.setTriangle(currentColor, trianglePoints);
 				Model.SINGLETON.addShape(triangle);
 				trianglePoints.clear();
 				System.out.println("adding triangle");
@@ -133,12 +133,30 @@ public class Controller implements CS355Controller {
 			currentShape.resetShape(start, point);
 		}
 		else if (currentState == STATES.select && currentShape != null) {
-			double x = point.getX() - start.getX(), y = point.getY() - start.getY();
-			x += currentShape.getCenter().getX();
-			y += currentShape.getCenter().getY();
-			Point2D.Double center = new Point2D.Double(x, y);
-			currentShape.setCenter(center);
-			start = point;
+			if (!currentShape.isRotating()) {
+				double x = point.getX() - start.getX(), y = point.getY() - start.getY();
+				x += currentShape.getCenter().getX();
+				y += currentShape.getCenter().getY();
+				Point2D.Double center = new Point2D.Double(x, y);
+				currentShape.setCenter(center);
+				start = point;
+			}else {
+				Point2D.Double s = new Point2D.Double(0, 0), e = new Point2D.Double(0, 0);
+				AffineTransform worldToObj = new AffineTransform();
+				worldToObj.translate(currentShape.getCenter().getX() * -1, currentShape.getCenter().getY() * -1);
+				worldToObj.transform(start, s);
+				worldToObj.transform(point, e);
+//				System.out.println("start: (" + s.x + ", " + s.y + ")");
+//				System.out.println("point: (" + e.x + ", " + e.y + ")");
+				System.out.println("center: (" + currentShape.getCenter().x + ", " + currentShape.getCenter().y + ")");
+				double pheta = Math.atan2(e.getY(), e.getX());
+				double phi = Math.atan2(s.getY(), s.getX());
+				double angle = pheta - phi;
+//				System.out.println("pheta: " + pheta + ", phi: " + phi + ", angle: " + angle);
+				currentShape.setRotation(currentShape.getRotation() + angle);
+				System.out.println("rotation: " + currentShape.getRotation());
+				start = point;
+			}
 		}
 		if (currentShape != null) {
 			Model.SINGLETON.setShape(currentIndex, currentShape);
@@ -162,47 +180,83 @@ public class Controller implements CS355Controller {
 	@Override
 	public void lineButtonHit() {
 		currentState = STATES.line;
+		start = null;
+		currentShape = null;
+		currentIndex = -1;
+		Model.SINGLETON.deselect();
 	}
 
 	@Override
 	public void squareButtonHit() {
 		currentState = STATES.square;
+		start = null;
+		currentShape = null;
+		currentIndex = -1;
+		Model.SINGLETON.deselect();
 	}
 
 	@Override
 	public void rectangleButtonHit() {
 		currentState = STATES.rectangle;
+		start = null;
+		currentShape = null;
+		currentIndex = -1;
+		Model.SINGLETON.deselect();
 	}
 
 	@Override
 	public void circleButtonHit() {
 		currentState = STATES.circle;
+		start = null;
+		currentShape = null;
+		currentIndex = -1;
+		Model.SINGLETON.deselect();
 	}
 
 	@Override
 	public void ellipseButtonHit() {
 		currentState = STATES.ellipse;
+		start = null;
+		currentShape = null;
+		currentIndex = -1;
+		Model.SINGLETON.deselect();
 	}
 
 	@Override
 	public void triangleButtonHit() {
 		currentState = STATES.triangle;
 		trianglePoints = new ArrayList<>();
+		start = null;
+		currentShape = null;
+		currentIndex = -1;
+		Model.SINGLETON.deselect();
 	}
 
 	@Override
 	public void selectButtonHit() {
 		currentState = STATES.select;
+		start = null;
+		currentShape = null;
+		currentIndex = -1;
+		Model.SINGLETON.deselect();
 	}
 
 	@Override
 	public void zoomInButtonHit() {
 		currentState = STATES.zoomIn;
+		start = null;
+		currentShape = null;
+		currentIndex = -1;
+		Model.SINGLETON.deselect();
 	}
 
 	@Override
 	public void zoomOutButtonHit() {
 		currentState = STATES.zoomOut;
+		start = null;
+		currentShape = null;
+		currentIndex = -1;
+		Model.SINGLETON.deselect();
 	}
 
 	@Override
@@ -285,6 +339,9 @@ public class Controller implements CS355Controller {
 	public void doDeleteShape() {
 		if (currentShape != null) {
 			Model.SINGLETON.deleteShape(currentIndex);
+			currentShape = null;
+			currentIndex = -1;
+			Model.SINGLETON.deselect();
 		}
 	}
 
@@ -332,26 +389,34 @@ public class Controller implements CS355Controller {
 
 	@Override
 	public void doMoveForward() {
-		// TODO Auto-generated method stub
-
+		if (currentShape != null) {
+			Model.SINGLETON.moveForward(currentIndex);
+			currentIndex = currentShape.getIndex();
+		}
 	}
 
 	@Override
 	public void doMoveBackward() {
-		// TODO Auto-generated method stub
-
+		if (currentShape != null) {
+			Model.SINGLETON.moveBackward(currentIndex);
+			currentIndex = currentShape.getIndex();
+		}
 	}
 
 	@Override
 	public void doSendToFront() {
-		// TODO Auto-generated method stub
-
+		if (currentShape != null) {
+			Model.SINGLETON.moveToFront(currentIndex);
+			currentIndex = currentShape.getIndex();
+		}
 	}
 
 	@Override
 	public void doSendtoBack() {
-		// TODO Auto-generated method stub
-
+		if (currentShape != null) {
+			Model.SINGLETON.movetoBack(currentIndex);
+			currentIndex = currentShape.getIndex();
+		}
 	}
 
 }

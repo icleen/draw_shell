@@ -88,6 +88,7 @@ public class Line extends Shape {
 		assert(start.getX() == this.center.getX());
 		assert(start.getY() == this.center.getY());
 		this.setEnd(end);
+		this.resetHandle();
 	}
 
 	@Override

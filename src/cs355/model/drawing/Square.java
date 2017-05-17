@@ -54,6 +54,8 @@ public class Square extends Shape {
 	 */
 	@Override
 	public boolean pointInShape(Point2D.Double point, double tolerance) {
+		System.out.println("handle: " + handle.toString());
+		System.out.println("center: " + toString());
 		double x = point.x;
 		double y = point.y;
 		if (x < 0) x *= -1;
@@ -61,8 +63,12 @@ public class Square extends Shape {
 		double radius = size/2;
 		if (x <= radius && y <= radius) {
 			this.isSelected = true;
+			this.rotating = false;
+		}else if (handle != null && this.isSelected) {
+			this.isSelected = this.pointInHandle(point, tolerance);
 		}else {
 			this.isSelected = false;
+			this.rotating = false;
 		}
 		return this.isSelected;
 	}
@@ -96,6 +102,7 @@ public class Square extends Shape {
 		Point2D.Double center = new Point2D.Double(x, y);
 		this.setCenter(center);
 		this.setSize(size);
+		this.resetHandle();
 	}
 
 	@Override

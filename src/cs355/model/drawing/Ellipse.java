@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 
-import iain.linear.Vector2D;
-
 /**
  * Add your ellipse code here. You can add fields, but you cannot
  * change the ones that already exist. This includes the names!
@@ -77,13 +75,18 @@ public class Ellipse extends Shape {
 	 */
 	@Override
 	public boolean pointInShape(Point2D.Double point, double tolerance) {
-		Vector2D p = new Vector2D(point.x /(width/2), point.y /(height/2));
-		double length = p.length();
-		length *= length;
-		if(length <= 1) {
+		double x = point.x /(width/2);
+		x *= x;
+		double y = point.y /(height/2);
+		y *= y;
+		if((x + y) <= 1) {
 			this.isSelected = true;
+			this.rotating = false;
+		}else if (handle != null && this.isSelected) {
+			this.isSelected = this.pointInHandle(point, tolerance);
 		}else {
 			this.isSelected = false;
+			this.rotating = false;
 		}
 		return this.isSelected;
 	}
@@ -115,6 +118,7 @@ public class Ellipse extends Shape {
 		this.setCenter(point);
 		this.setHeight(height);
 		this.setWidth(width);
+		this.resetHandle();
 	}
 
 }

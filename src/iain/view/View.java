@@ -9,18 +9,20 @@ import java.util.List;
 import java.util.Observable;
 
 import cs355.GUIFunctions;
+import cs355.model.drawing.Circle;
 import cs355.model.drawing.Line;
 import cs355.model.drawing.Shape;
 import cs355.model.drawing.Triangle;
 import cs355.view.ViewRefresher;
 import iain.model.Model;
-import iain.model.ShapeSizer;
 
 public class View implements ViewRefresher {
 	
-	private static final int BORDER_SIZE = 5;
+	private static final int BORDER_SIZE = 1;
 	private static final int LINE_SIZE = 1;
 	private static final int ORIGIN = 0;
+	
+	private Shape selected;
 	
 	public View() {
 		Model.SINGLETON.addObserver(this);
@@ -40,26 +42,16 @@ public class View implements ViewRefresher {
 			type = s.getShapeType();
 			int width = (int) s.getWidth(), height = (int) s.getHeight();
 			objToWorld = new AffineTransform();
-			objToWorld.translate(s.getCenter().x - (s.getWidth()/2), s.getCenter().y - (s.getHeight()/2));
+			objToWorld.translate(s.getCenter().x, s.getCenter().y);
 			objToWorld.rotate(s.getRotation());
 			g2d.setTransform(objToWorld);
 			g2d.setColor(s.getColor());
 			switch (type) {
 			case circle:
-				g2d.fillOval(ORIGIN, ORIGIN, width, height);
-				if (s.shapeSelected()) {
-					g2d.setColor(Color.pink);
-					g2d.setStroke(new BasicStroke(BORDER_SIZE));
-					g2d.drawOval(ORIGIN, ORIGIN, width, height);
-				}
+				g2d.fillOval(ORIGIN - (width/2), ORIGIN - (height/2), width, height);
 				break;
 			case ellipse:
-				g2d.fillOval(ORIGIN, ORIGIN, width, height);
-				if (s.shapeSelected()) {
-					g2d.setColor(Color.pink);
-					g2d.setStroke(new BasicStroke(BORDER_SIZE));
-					g2d.drawOval(ORIGIN, ORIGIN, width, height);
-				}
+				g2d.fillOval(ORIGIN - (width/2), ORIGIN - (height/2), width, height);
 				break;
 			case line:
 				g2d.setStroke(new BasicStroke(LINE_SIZE));
@@ -67,35 +59,54 @@ public class View implements ViewRefresher {
 				g2d.drawLine(ORIGIN, ORIGIN, (int) end.x, (int) end.y);
 				break;
 			case rectangle:
-				g2d.fillRect(ORIGIN, ORIGIN, width, height);
-				if (s.shapeSelected()) {
-					g2d.setColor(Color.pink);
-					g2d.setStroke(new BasicStroke(BORDER_SIZE));
-					g2d.drawRect(ORIGIN, ORIGIN, width, height);
-				}
+				g2d.fillRect(ORIGIN - (width/2), ORIGIN - (height/2), width, height);
 				break;
 			case square:
-				g2d.fillRect(ORIGIN, ORIGIN, width, height);
-				if (s.shapeSelected()) {
-					g2d.setColor(Color.pink);
-					g2d.setStroke(new BasicStroke(BORDER_SIZE));
-					g2d.drawRect(ORIGIN, ORIGIN, width, height);
-				}
+				g2d.fillRect(ORIGIN - (width/2), ORIGIN - (height/2), width, height);
 				break;
 			case triangle:
 				int[] xPoints = ((Triangle) s).getXCoordinates();
 				int[] yPoints = ((Triangle) s).getYCoordinates();
 				g2d.fillPolygon(xPoints, yPoints, Model.TOTAL_TRIANGLE_POINTS);
-				if (s.shapeSelected()) {
-					g2d.setColor(Color.pink);
-					g2d.setStroke(new BasicStroke(3));
-					g2d.drawPolygon(xPoints, yPoints, Model.TOTAL_TRIANGLE_POINTS);
-				}
 				break;
 			default:
 				break;
 			}
+			if (s.shapeSelected()) {
+				selected = s;
+			}
 		}
+		if (selected != null) {
+			int width = (int) selected.getWidth(), height = (int) selected.getHeight();
+			objToWorld = new AffineTransform();
+			objToWorld.translate(selected.getCenter().x, selected.getCenter().y);
+			objToWorld.rotate(selected.getRotation());
+			g2d.setTransform(objToWorld);
+			
+			if (selected.getShapeType() == Shape.SHAPE_TYPE.triangle) {
+				g2d.setColor(Color.red);
+				g2d.setStroke(new BasicStroke(BORDER_SIZE));
+				g2d.drawPolygon(((Triangle) selected).getXCoordinates(), 
+						((Triangle) selected).getYCoordinates(), Model.TOTAL_TRIANGLE_POINTS);
+			}
+			else if (selected.getShapeType() != Shape.SHAPE_TYPE.line) {
+				g2d.setColor(Color.red);
+				g2d.setStroke(new BasicStroke(BORDER_SIZE));
+				g2d.drawRect(ORIGIN - (width/2), ORIGIN - (height/2), width, height);
+			}else {
+				selected = null;
+				return;
+			}
+			Circle handle = selected.getHandle();
+			objToWorld = new AffineTransform();
+			objToWorld.translate(selected.getCenter().x, selected.getCenter().y);
+			objToWorld.rotate(selected.getRotation());
+			g2d.setTransform(objToWorld);
+//			(int) handle.getCenter().x, (int) handle.getCenter().y
+			g2d.drawOval((int) (handle.getCenter().x - handle.getRadius()), (int) (handle.getCenter().y - handle.getRadius()), 
+					(int) handle.getWidth(), (int) handle.getHeight());
+		}
+		selected = null;
 	}
 
 }

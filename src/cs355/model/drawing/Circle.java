@@ -57,10 +57,14 @@ public class Circle extends Shape {
 	public boolean pointInShape(Point2D.Double point, double tolerance) {
 		Vector2D p = new Vector2D(point);
 		if(p.length() <= radius) {
-			System.out.println("length: " + p.toString() + ", radius: " + radius);
+//			System.out.println("length: " + p.toString() + ", radius: " + radius);
 			this.isSelected = true;
+			this.rotating = false;
+		}else if (handle != null && this.isSelected) {
+			this.isSelected = this.pointInHandle(point, tolerance);
 		}else {
 			this.isSelected = false;
+			this.rotating = false;
 		}
 		return this.isSelected;
 	}
@@ -81,7 +85,7 @@ public class Circle extends Shape {
 		double x = 0, y = 0;
 		// check to see which one is smaller and make the radius the same size as that one
 		// then set the center a radius length away from the start point
-		if (height < width) { 
+		if (height < width) {
 			radius =  height / 2;
 			y = (start.getY() + end.getY()) / 2;
 			if (start.getX() < end.getX()) {
@@ -99,10 +103,11 @@ public class Circle extends Shape {
 			}
 		}
 //		System.out.println("radius: " + radius);
-//		System.out.println("xy: " + x + ", " + y + ")");
+//		System.out.println("xy: (" + x + ", " + y + ")");
 		Point2D.Double center = new Point2D.Double(x, y);
 		this.setRadius(radius);
 		this.setCenter(center);
+		this.resetHandle();
 	}
 
 	@Override
